@@ -26,6 +26,7 @@ const Calculator: React.FC = () => {
     calculationName: "",
   });
 
+  const [listLoading, setListLoading] = useState(false);
   const [calculationList, setCalculationList] = useState<ICalculation[]>([]);
 
   const handleDigitClick = (digit: string) => {
@@ -167,6 +168,7 @@ const Calculator: React.FC = () => {
   };
 
   const getUserCalculations = () => {
+    setListLoading(true);
     fetch("/calculation/getAllUserCalculations", {
       method: "POST",
       headers: {
@@ -182,7 +184,10 @@ const Calculator: React.FC = () => {
         }
       })
       .catch((err) => {
-        toast.error(err.message);
+        toast.error("Unable to fetch calculations");
+      })
+      .finally(() => {
+        setListLoading(false);
       });
   };
 
@@ -374,60 +379,98 @@ const Calculator: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {calculationList.length > 0 ? (
-                    <>
-                      {calculationList.map((calculation, index) => {
-                        return (
-                          <tr
-                            className="border-bottom"
-                            key={`caculation-${index}`}
-                          >
-                            <td>{calculation.name}</td>
-                            <td>{calculation.calculation}</td>
-                            <td>{calculation.result}</td>
-                            <td>
-                              <div>
-                                <button className="btn border-0 btn-sm">
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    fill="currentColor"
-                                    className="bi bi-bootstrap-reboot"
-                                    viewBox="0 0 16 16"
-                                  >
-                                    <path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z" />
-                                    <path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z" />
-                                  </svg>
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-danger p-1"
-                                  onClick={() =>
-                                    deleteCaclulation(calculation.id)
-                                  }
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    fill="currentColor"
-                                    className="bi bi-trash"
-                                    viewBox="0 0 16 16"
-                                  >
-                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z" />
-                                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </>
-                  ) : (
+                  {listLoading ? (
                     <tr>
-                      <td rowSpan={4}>No Calcutions yet</td>
+                      <td colSpan={4}>
+                        <p className="placeholder-glow">
+                          <span className="placeholder col-12"></span>
+                        </p>
+
+                        <p className="placeholder-wave">
+                          <span className="placeholder col-12"></span>
+                        </p>
+                        <p className="placeholder-glow">
+                          <span className="placeholder col-12"></span>
+                        </p>
+
+                        <p className="placeholder-wave">
+                          <span className="placeholder col-12"></span>
+                        </p>
+                      </td>
                     </tr>
+                  ) : (
+                    <>
+                      {calculationList?.length > 0 ? (
+                        <>
+                          {calculationList.map((calculation, index) => {
+                            return (
+                              <tr
+                                className="border-bottom"
+                                key={`caculation-${index}`}
+                              >
+                                <td>{calculation.name}</td>
+                                <td>{calculation.calculation}</td>
+                                <td>{calculation.result}</td>
+                                <td>
+                                  <div>
+                                    <button
+                                      className="btn border-0 btn-sm"
+                                      onClick={() => {
+                                        setCalculationState((old) => {
+                                          return {
+                                            ...old,
+                                            currentValue: "0",
+                                            calculationStr:
+                                              calculation.calculation,
+                                            lastOperation: "",
+                                            result: "",
+                                            calculationName: calculation.name,
+                                          };
+                                        });
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        fill="currentColor"
+                                        className="bi bi-bootstrap-reboot"
+                                        viewBox="0 0 16 16"
+                                      >
+                                        <path d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z" />
+                                        <path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z" />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-danger p-1"
+                                      onClick={() =>
+                                        deleteCaclulation(calculation.id)
+                                      }
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        fill="currentColor"
+                                        className="bi bi-trash"
+                                        viewBox="0 0 16 16"
+                                      >
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z" />
+                                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </>
+                      ) : (
+                        <tr>
+                          <td rowSpan={4}>No Calcutions yet</td>
+                        </tr>
+                      )}
+                    </>
                   )}
                 </tbody>
               </table>

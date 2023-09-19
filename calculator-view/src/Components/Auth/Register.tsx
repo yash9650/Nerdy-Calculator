@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import AuthContext from "../../Context/AuthContext";
+import { LoadingButton } from "../UI/LoadingButton";
 
 export const Register: React.FC<{
   hideRegister: () => void;
@@ -28,8 +29,7 @@ export const Register: React.FC<{
     });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     setIsLoading(true);
     fetch("/register", {
       method: "POST",
@@ -63,7 +63,7 @@ export const Register: React.FC<{
   return (
     <div className="container my-2">
       <h5>Register</h5>
-      <form onSubmit={handleSubmit}>
+      <form>
         <div className="form-group my-2">
           <label htmlFor="name" className="text-start d-block">
             Name
@@ -129,9 +129,9 @@ export const Register: React.FC<{
           </div>
         </div>
         <div>
-          <button type="submit" className="btn btn-primary">
+          <LoadingButton onClick={handleSubmit} loading={isLoading}>
             Register
-          </button>
+          </LoadingButton>
         </div>
       </form>
       <p className="text-primary" role="button" onClick={props.hideRegister}>

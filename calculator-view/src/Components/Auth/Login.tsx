@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import AuthContext from "../../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { LoadingButton } from "../UI/LoadingButton";
 
 export const Login: React.FC<{
   hideLogin: () => void;
@@ -11,12 +12,12 @@ export const Login: React.FC<{
     username: "",
     password: "",
   });
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    setLoading(true);
     fetch("/login", {
       method: "POST",
       headers: {
@@ -31,10 +32,15 @@ export const Login: React.FC<{
           authCtx.setUserData(data.result);
           navigate("/", { replace: true });
           toast.success("Login successful");
+        } else {
+          throw new Error("Invalid credentials");
         }
       })
       .catch((err) => {
         toast.error("Invalid credentials");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -77,9 +83,9 @@ export const Login: React.FC<{
           />
         </div>
         <div>
-          <button type="submit" className="btn btn-primary">
+          <LoadingButton minWidth="42px" loading={loading} buttonType="submit">
             Login
-          </button>
+          </LoadingButton>
         </div>
       </form>
       <p className="text-primary" role="button" onClick={props.hideLogin}>
