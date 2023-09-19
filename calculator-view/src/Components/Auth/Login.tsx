@@ -30,7 +30,7 @@ export const Login: React.FC<{
         if (data.success) {
           authCtx.setIsAuthenticated(true);
           authCtx.setUserData(data.result);
-          navigate("/", { replace: true });
+          navigate("/calculator", { replace: true });
           toast.success("Login successful");
         } else {
           throw new Error("Invalid credentials");
