@@ -1,0 +1,6 @@
+node_modules
+.env
+build
+ormlogs.log
+package-lock.json
+root.crt
