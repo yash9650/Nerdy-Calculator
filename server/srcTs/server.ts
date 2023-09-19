@@ -6,6 +6,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { UserEntity } from "./Database/Entities/user.entity";
 import session from "express-session";
 import { masterRoutes } from "./Routes/master.routes";
+import path from "path";
 
 config();
 
@@ -81,6 +82,7 @@ passport.use(
 startServer();
 
 app.use(masterRoutes);
-// app.get("/*", function (req, res) {
-//   res.sendFile(path.resolve(__dirname, "../build", "index.html"));
-// });
+
+app.get("/*", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "../build", "index.html"));
+});
