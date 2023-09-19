@@ -1,9 +1,10 @@
 import { createContext } from "react";
+import { IUser } from "../Interfaces/common.interface";
 
 const AuthContext = createContext<{
   isAuthenticated: boolean;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
-  userData: any;
+  userData: IUser | null;
   setUserData: (userData: any) => void;
   logout: () => void;
 }>({

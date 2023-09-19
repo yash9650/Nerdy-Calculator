@@ -6,12 +6,14 @@ import { CustomNavbar } from "./Components/UI/CustomNavbar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Calculator from "./Components/Calculator";
-import { Login } from "./Components/Login";
 import AuthContext from "./Context/AuthContext";
 import { ProtectedRoute } from "./Components/Auth/ProtectedRoute";
+import { LoginRegisterPage } from "./Components/Auth/LoginRegisterPage";
+import { Spinner } from "react-bootstrap";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<any>(null);
+  const [loadingUserData, setLoadingUserData] = useState(true);
 
   const router = createBrowserRouter([
     {
@@ -36,7 +38,7 @@ function App() {
         },
         {
           path: "/login",
-          element: <Login />,
+          element: <LoginRegisterPage />,
         },
       ],
     },
@@ -54,11 +56,16 @@ function App() {
         if (data.success) {
           setIsAuthenticated(true);
           setUserData(data.result);
+        } else {
+          throw new Error("Not authenticated");
         }
       })
       .catch((err) => {
         setIsAuthenticated(false);
         setUserData(null);
+      })
+      .finally(() => {
+        setLoadingUserData(false);
       });
   }, []);
 
@@ -78,18 +85,34 @@ function App() {
 
   return (
     <React.Fragment>
-      <AuthContext.Provider
-        value={{
-          isAuthenticated,
-          setIsAuthenticated,
-          userData,
-          setUserData,
-          logout,
-        }}
-      >
-        <ToastContainer />
-        <RouterProvider router={router} />
-      </AuthContext.Provider>
+      {loadingUserData ? (
+        <div className="container">
+          <div
+            style={{
+              display: "flex",
+              height: "100vh",
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Spinner />
+          </div>
+        </div>
+      ) : (
+        <AuthContext.Provider
+          value={{
+            isAuthenticated,
+            setIsAuthenticated,
+            userData,
+            setUserData,
+            logout,
+          }}
+        >
+          <ToastContainer />
+          <RouterProvider router={router} />
+        </AuthContext.Provider>
+      )}
     </React.Fragment>
   );
 }

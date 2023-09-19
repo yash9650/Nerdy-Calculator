@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { ICalculation } from "../../Interfaces/common.interface";
 
 const Calculator: React.FC = () => {
   const operatorKeysArr = ["/", "*", "-", "+", "="] as const;
@@ -22,9 +23,10 @@ const Calculator: React.FC = () => {
     calculationStr: "",
     lastOperation: "",
     result: "",
+    calculationName: "",
   });
 
-  const [calculationList, setCalculationList] = useState<any[]>([]);
+  const [calculationList, setCalculationList] = useState<ICalculation[]>([]);
 
   const handleDigitClick = (digit: string) => {
     if (calculationState.currentValue === "0") {
@@ -56,8 +58,6 @@ const Calculator: React.FC = () => {
     }
     if (operation === "=") {
       let result = eval(calculationStr);
-      console.log(result);
-
       setCalculationState((old) => {
         return {
           ...old,
@@ -105,12 +105,35 @@ const Calculator: React.FC = () => {
   const saveCalculation = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!calculationState.calculationStr) {
+      toast.error("Please perform a calculation first");
       return;
     }
-    let result = calculationState.result;
 
-    if (!result) {
-      result = eval(calculationState.calculationStr);
+    if (!calculationState.calculationName) {
+      toast.error("Please enter a calculation name");
+      return;
+    }
+
+    let result = calculationState.result;
+    let calculationStr = calculationState.calculationStr;
+
+    if (calculationState.currentValue !== "0") {
+      calculationStr =
+        calculationState.calculationStr +
+        calculationState.lastOperation +
+        calculationState.currentValue;
+
+      result = eval(calculationStr);
+    }
+
+    // promt confirmation
+    const confirm = window.prompt(
+      "Are you sure you want to save this calculation?",
+      calculationStr
+    );
+
+    if (!confirm) {
+      return;
     }
 
     fetch("/calculation/createCalculation", {
@@ -119,8 +142,8 @@ const Calculator: React.FC = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        calculation: calculationState.calculationStr,
-        name: "Test",
+        calculation: calculationStr,
+        name: calculationState.calculationName,
         result,
       }),
     })
@@ -128,6 +151,14 @@ const Calculator: React.FC = () => {
       .then((data) => {
         if (data.success) {
           toast.success("Calculation saved successfully");
+          getUserCalculations();
+          setCalculationState({
+            currentValue: "0",
+            calculationStr: "",
+            lastOperation: "",
+            result: "",
+            calculationName: "",
+          });
         }
       })
       .catch((err) => {
@@ -148,6 +179,30 @@ const Calculator: React.FC = () => {
           setCalculationList(data.result);
         } else {
           throw new Error(data.errorMessage || "Unable to fetch calculations");
+        }
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
+
+  const deleteCaclulation = (id: number) => {
+    fetch("/calculation/deleteCalculationById", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          toast.success("Calculation deleted successfully");
+          getUserCalculations();
+        } else {
+          throw new Error(data.errorMessage || "Unable to delete caculation");
         }
       })
       .catch((err) => {
@@ -203,6 +258,7 @@ const Calculator: React.FC = () => {
                           onClick={() => {
                             setCalculationState((old) => {
                               return {
+                                ...old,
                                 result: "",
                                 currentValue: "0",
                                 calculationStr: "",
@@ -285,6 +341,15 @@ const Calculator: React.FC = () => {
                   className="form-control w-75"
                   name="calculationName"
                   id="calculationName"
+                  value={calculationState.calculationName}
+                  onChange={(e) => {
+                    setCalculationState((old) => {
+                      return {
+                        ...old,
+                        calculationName: e.target.value,
+                      };
+                    });
+                  }}
                 />
                 <button type="submit" className="btn btn-primary btn-sm ms-2">
                   Save
@@ -335,7 +400,12 @@ const Calculator: React.FC = () => {
                                     <path d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z" />
                                   </svg>
                                 </button>
-                                <button className="btn btn-sm btn-danger p-1">
+                                <button
+                                  className="btn btn-sm btn-danger p-1"
+                                  onClick={() =>
+                                    deleteCaclulation(calculation.id)
+                                  }
+                                >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="16"
