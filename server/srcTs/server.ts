@@ -18,7 +18,6 @@ const startServer = async () => {
     console.log("Connecting to database....");
     await appDataSource.initialize();
     console.log("Database connected");
-
     app.listen(PORT, () => {
       console.log(`listening on http://localhost:${PORT}`);
     });
@@ -80,6 +79,7 @@ passport.use(
 );
 
 startServer();
+
 app.use(masterRoutes);
 // app.get("/*", function (req, res) {
 //   res.sendFile(path.resolve(__dirname, "../build", "index.html"));

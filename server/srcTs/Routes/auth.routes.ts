@@ -7,13 +7,7 @@ const router = express.Router();
 
 router.post("/detect", AuthController.detect);
 
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    failureRedirect: "/401",
-  }),
-  AuthController.login
-);
+router.post("/login", passport.authenticate("local"), AuthController.login);
 router.post("/register", AuthController.register);
 
 router.post("/logout", AuthController.logout);

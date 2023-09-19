@@ -4,6 +4,7 @@ import { errorResponse } from "../Utils/request.utils";
 import appDataSource from "../Database/DataSource";
 import { UserEntity } from "../Database/Entities/user.entity";
 import bcrypt from "bcrypt";
+import passport from "passport";
 
 export class AuthController {
   static async login(req: Request, res: Response) {
@@ -14,9 +15,13 @@ export class AuthController {
     return errorResponse(res, "Login failed");
   }
 
-  static async register(req: Request, res: Response) {
+  static async register(req: Request, res: Response): Promise<any> {
     const userRepo = appDataSource.getRepository(UserEntity);
     const { name, username, email, password } = req.body;
+    if (!name || !username || !email || !password) {
+      return errorResponse(res, "Please provide all the details");
+    }
+
     let user = new UserEntity();
     user.name = name;
     user.email = email;
@@ -25,7 +30,12 @@ export class AuthController {
 
     try {
       user = await userRepo.save(user);
-      return successResponse(res, user);
+      passport.authenticate("local")(req, res, () => {
+        return successResponse(res, {
+          ...user,
+          hash: undefined,
+        });
+      });
     } catch (error) {
       return errorResponse(
         res,
