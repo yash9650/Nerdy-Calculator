@@ -79,7 +79,7 @@ export const CustomNavbar = () => {
             ) : (
               <li className="nav-item">
                 <Link className="nav-link" to="/login">
-                  Login | Register
+                  Login/Register
                 </Link>
               </li>
             )}
