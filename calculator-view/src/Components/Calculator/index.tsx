@@ -338,7 +338,7 @@ const Calculator: React.FC = () => {
                             }}
                             key={key}
                           >
-                            {key}
+                            {key === "*" ? "x" : key === "/" ? "÷" : key}
                           </button>
                         );
                       })}
