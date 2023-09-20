@@ -127,6 +127,15 @@ const Calculator: React.FC = () => {
       result = eval(calculationStr);
     }
 
+    if (!result && calculationStr) {
+      result = eval(calculationStr);
+    }
+
+    if (!result) {
+      toast.error("Please perform a calculation first");
+      return;
+    }
+
     // promt confirmation
     const confirm = window.prompt(
       "Are you sure you want to save this calculation?",
