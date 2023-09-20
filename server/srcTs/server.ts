@@ -7,6 +7,7 @@ import { UserEntity } from "./Database/Entities/user.entity";
 import session from "express-session";
 import { masterRoutes } from "./Routes/master.routes";
 import path from "path";
+import cookieParser from "cookie-parser";
 
 config();
 
@@ -30,6 +31,7 @@ const startServer = async () => {
 app.use(express.static(__dirname + "/../build"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(
   session({
     secret: SESSION_SECRET,
