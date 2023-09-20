@@ -10,6 +10,9 @@ export class CalculationController {
       where: {
         userId: req.user?.id,
       },
+      order: {
+        createdAt: "DESC",
+      },
     });
 
     return successResponse<CalculationEntity[]>(res, calculations);
